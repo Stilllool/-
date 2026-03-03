@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STILLOOL后台管理系统</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    /* 头部 */
+    .header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    
+    .header-title i {
+      font-size: 28px;
+      color: #667eea;
+    }
+    
+    .header-title h1 {
+      font-size: 24px;
+      color: #333;
+      font-weight: 600;
+    }
+    
+    .header-subtitle {
+      color: #666;
+      font-size: 14px;
+    }
+    
+    /* 系统信息 */
+    .info-panel {
+      background: rgba(255, 248, 225, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+      border-left: 4px solid #ffc107;
+    }
+    
+    .info-panel h3 {
+      font-size: 14px;
+      color: #856404;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    
+    .info-panel p {
+      font-size: 13px;
+      color: #856404;
+      line-height: 1.6;
+    }
+    
+    .info-panel .check {
+      color: #28a745;
+    }
+    
+    /* 上传区域 */
+    .upload-area {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 40px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      border: 2px dashed transparent;
+      transition: all 0.3s ease;
+    }
+    
+    .upload-area.dragover {
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.05);
+    }
+    
+    .upload-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .upload-icon i {
+      font-size: 36px;
+      color: white;
+    }
+    
+    .upload-text {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    
+    .upload-hint {
+      font-size: 13px;
+      color: #999;
+      margin-bottom: 20px;
+    }
+    
+    .file-input {
+      display: none;
+    }
+    
+    .btn {
+      padding: 12px 32px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+      color: white;
+      padding: 8px 16px;
+      font-size: 12px;
+    }
+    
+    .btn-danger:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      padding: 8px 16px;
+      font-size: 12px;
+    }
+    
+    .btn-success:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+    
+    /* 选中文件信息 */
+    .file-selected {
+      display: none;
+      margin-top: 20px;
+      padding: 16px;
+      background: rgba(102, 126, 234, 0.1);
+      border-radius: 12px;
+    }
+    
+    .file-selected.show {
+      display: block;
+    }
+    
+    .file-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    
+    .file-info i {
+      font-size: 24px;
+      color: #667eea;
+    }
+    
+    .file-details {
+      text-align: left;
+      flex: 1;
+    }
+    
+    .file-name {
+      font-size: 14px;
+      color: #333;
+      font-weight: 500;
+      word-break: break-all;
+    }
+    
+    .file-size {
+      font-size: 12px;
+      color: #999;
+    }
+    
+    /* 文件列表 */
+    .file-list {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      min-height: 200px;
+    }
+    
+    .file-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .file-list-title {
+      font-size: 18px;
+      color: #333;
+      font-weight: 600;
+    }
+    
+    .refresh-btn {
+      background: none;
+      border: none;
+      color: #667eea;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 8px;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+    
+    .refresh-btn:hover {
+      background: rgba(102, 126, 234, 0.1);
+      transform: rotate(180deg);
+    }
+    
+    .refresh-btn.spinning {
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    /* 空状态 */
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+    }
+    
+    .empty-icon {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .empty-icon i {
+      font-size: 40px;
+      color: #bbb;
+    }
+    
+    .empty-text {
+      font-size: 16px;
+      color: #999;
+      margin-bottom: 8px;
+    }
+    
+    .empty-hint {
+      font-size: 13px;
+      color: #bbb;
+    }
+    
+    /* 文件项 */
+    .file-item {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      transition: all 0.3s ease;
+    }
+    
+    .file-item:hover {
+      background: #e9ecef;
+      transform: translateX(4px);
+    }
+    
+    .file-item-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 16px;
+      flex-shrink: 0;
+    }
+    
+    .file-item-icon i {
+      font-size: 20px;
+      color: white;
+    }
+    
+    .file-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .file-item-name {
+      font-size: 14px;
+      color: #333;
+      font-weight: 500;
+      margin-bottom: 4px;
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .file-item-meta {
+      font-size: 12px;
+      color: #999;
+    }
+    
+    .file-item-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    
+    /* 进度条 */
+    .progress-bar {
+      display: none;
+      width: 100%;
+      height: 4px;
+      background: #e0e0e0;
+      border-radius: 2px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+    
+    .progress-bar.show {
+      display: block;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+    
+    /* 提示消息 */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 16px 24px;
+      border-radius: 12px;
+      color: white;
+      font-size: 14px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      transform: translateX(400px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+    
+    .toast.show {
+      transform: translateX(0);
+    }
+    
+    .toast.success {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+    
+    .toast.error {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+    }
+    
+    /* 确认对话框 */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-overlay.show {
+      display: flex;
+    }
+    
+    .modal {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      max-width: 360px;
+      width: 90%;
+      text-align: center;
+      animation: modalIn 0.3s ease;
+    }
+    
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    .modal-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+    }
+    
+    .modal-icon i {
+      font-size: 28px;
+      color: white;
+    }
+    
+    .modal-title {
+      font-size: 18px;
+      color: #333;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .modal-text {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    
+    .btn-secondary {
+      background: #e0e0e0;
+      color: #666;
+    }
+    
+    .btn-secondary:hover {
+      background: #d0d0d0;
+    }
+    
+    /* 响应式 */
+    @media (max-width: 600px) {
+      body {
+        padding: 12px;
+      }
+      
+      .upload-area {
+        padding: 24px;
+      }
+      
+      .file-item {
+        flex-wrap: wrap;
+      }
+      
+      .file-item-actions {
+        width: 100%;
+        margin-top: 12px;
+        justify-content: flex-end;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 头部 -->
+    <div class="header">
+      <div class="header-title">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <h1>STILLOOL后台管理系统</h1>
+      </div>
+      <p class="header-subtitle">文件上传与管理平台</p>
+    </div>
+    
+    <!-- 系统信息 -->
+    <div class="info-panel">
+      <h3><i class="fas fa-info-circle"></i> 系统信息</h3>
+      <p>
+        - 上传目录: <span id="upload-dir">/uploads</span><br>
+        - 目录权限: <span class="check"><i class="fas fa-check-circle"></i> 可写</span><br>
+        - 文件大小限制: 100MB<br>
+        - 服务器状态: <span class="check"><i class="fas fa-check-circle"></i> 运行中</span>
+      </p>
+    </div>
+    
+    <!-- 上传区域 -->
+    <div class="upload-area" id="uploadArea">
+      <div class="upload-icon">
+        <i class="fas fa-cloud-upload-alt"></i>
+      </div>
+      <p class="upload-text">点击选择文件 或 拖拽到此处</p>
+      <p class="upload-hint">最大 100MB</p>
+      <input type="file" class="file-input" id="fileInput">
+      <button class="btn btn-primary" id="selectBtn">
+        <i class="fas fa-folder-open"></i> 选择文件
+      </button>
+      
+      <!-- 选中文件信息 -->
+      <div class="file-selected" id="fileSelected">
+        <div class="file-info">
+          <i class="fas fa-file"></i>
+          <div class="file-details">
+            <div class="file-name" id="selectedFileName">-</div>
+            <div class="file-size" id="selectedFileSize">-</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="uploadBtn">
+          <i class="fas fa-upload"></i> 开始上传
+        </button>
+        <div class="progress-bar" id="progressBar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 文件列表 -->
+    <div class="file-list">
+      <div class="file-list-header">
+        <h2 class="file-list-title"><i class="fas fa-folder"></i> 文件列表</h2>
+        <button class="refresh-btn" id="refreshBtn" title="刷新列表">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+      </div>
+      <div id="fileListContainer">
+        <!-- 动态加载文件列表 -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- 提示消息 -->
+  <div class="toast" id="toast"></div>
+  
+  <!-- 确认对话框 -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-icon">
+        <i class="fas fa-trash-alt"></i>
+      </div>
+      <h3 class="modal-title">确认删除</h3>
+      <p class="modal-text">确定要删除文件 "<span id="deleteFileName"></span>" 吗？<br>此操作不可撤销。</p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="cancelDelete">取消</button>
+        <button class="btn btn-danger" id="confirmDelete">确认删除</button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // API基础URL - 自动检测
+    const API_BASE = window.location.origin;
+    
+    // DOM元素
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const selectBtn = document.getElementById('selectBtn');
+    const fileSelected = document.getElementById('fileSelected');
+    const selectedFileName = document.getElementById('selectedFileName');
+    const selectedFileSize = document.getElementById('selectedFileSize');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+    const fileListContainer = document.getElementById('fileListContainer');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const toast = document.getElementById('toast');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const deleteFileName = document.getElementById('deleteFileName');
+    const cancelDelete = document.getElementById('cancelDelete');
+    const confirmDelete = document.getElementById('confirmDelete');
+    
+    let currentFile = null;
+    let fileToDelete = null;
+    
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      loadFileList();
+    });
+    
+    // 选择文件按钮
+    selectBtn.addEventListener('click', () => {
+      fileInput.click();
+    });
+    
+    // 文件选择变化
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        currentFile = e.target.files[0];
+        showFileInfo(currentFile);
+      }
+    });
+    
+    // 显示选中文件信息
+    function showFileInfo(file) {
+      selectedFileName.textContent = file.name;
+      selectedFileSize.textContent = formatFileSize(file.size);
+      fileSelected.classList.add('show');
+      selectBtn.style.display = 'none';
+    }
+    
+    // 上传按钮
+    uploadBtn.addEventListener('click', async () => {
+      if (!currentFile) return;
+      
+      // 检查文件大小
+      if (currentFile.size > 100 * 1024 * 1024) {
+        showToast('文件大小超过100MB限制', 'error');
+        return;
+      }
+      
+      uploadBtn.disabled = true;
+      uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 上传中...';
+      progressBar.classList.add('show');
+      
+      const formData = new FormData();
+      formData.append('file', currentFile);
+      
+      try {
+        // 模拟进度
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+          progress += Math.random() * 15;
+          if (progress > 90) progress = 90;
+          progressFill.style.width = progress + '%';
+        }, 200);
+        
+        const response = await fetch(`${API_BASE}/api/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        
+        clearInterval(progressInterval);
+        progressFill.style.width = '100%';
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          showToast('文件上传成功！', 'success');
+          resetUpload();
+          loadFileList();
+        } else {
+          showToast(result.message || '上传失败', 'error');
+        }
+      } catch (error) {
+        showToast('上传失败: ' + error.message, 'error');
+      } finally {
+        uploadBtn.disabled = false;
+        uploadBtn.innerHTML = '<i class="fas fa-upload"></i> 开始上传';
+        setTimeout(() => {
+          progressBar.classList.remove('show');
+          progressFill.style.width = '0%';
+        }, 500);
+      }
+    });
+    
+    // 重置上传区域
+    function resetUpload() {
+      currentFile = null;
+      fileInput.value = '';
+      fileSelected.classList.remove('show');
+      selectBtn.style.display = 'inline-block';
+    }
+    
+    // 加载文件列表
+    async function loadFileList() {
+      refreshBtn.classList.add('spinning');
+      
+      try {
+        const response = await fetch(`${API_BASE}/api/files`);
+        const result = await response.json();
+        
+        if (result.success) {
+          renderFileList(result.files);
+        } else {
+          showToast('加载文件列表失败', 'error');
+        }
+      } catch (error) {
+        showToast('加载文件列表失败: ' + error.message, 'error');
+        renderFileList([]);
+      } finally {
+        refreshBtn.classList.remove('spinning');
+      }
+    }
+    
+    // 渲染文件列表
+    function renderFileList(files) {
+      if (files.length === 0) {
+        fileListContainer.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">
+              <i class="fas fa-inbox"></i>
+            </div>
+            <p class="empty-text">暂无文件</p>
+            <p class="empty-hint">上传你的第一个文件吧！</p>
+          </div>
+        `;
+        return;
+      }
+      
+      fileListContainer.innerHTML = files.map(file => `
+        <div class="file-item">
+          <div class="file-item-icon">
+            <i class="fas ${getFileIcon(file.name)}"></i>
+          </div>
+          <div class="file-item-info">
+            <div class="file-item-name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</div>
+            <div class="file-item-meta">${file.sizeFormatted} · ${file.uploadTimeFormatted}</div>
+          </div>
+          <div class="file-item-actions">
+            <button class="btn btn-success" onclick="downloadFile('${encodeURIComponent(file.name)}')">
+              <i class="fas fa-download"></i> 下载
+            </button>
+            <button class="btn btn-danger" onclick="confirmDeleteFile('${encodeURIComponent(file.name)}')">
+              <i class="fas fa-trash-alt"></i> 删除
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    // 获取文件图标
+    function getFileIcon(filename) {
+      const ext = filename.split('.').pop().toLowerCase();
+      const iconMap = {
+        'pdf': 'fa-file-pdf',
+        'doc': 'fa-file-word',
+        'docx': 'fa-file-word',
+        'xls': 'fa-file-excel',
+        'xlsx': 'fa-file-excel',
+        'ppt': 'fa-file-powerpoint',
+        'pptx': 'fa-file-powerpoint',
+        'jpg': 'fa-file-image',
+        'jpeg': 'fa-file-image',
+        'png': 'fa-file-image',
+        'gif': 'fa-file-image',
+        'mp4': 'fa-file-video',
+        'avi': 'fa-file-video',
+        'mp3': 'fa-file-audio',
+        'wav': 'fa-file-audio',
+        'zip': 'fa-file-archive',
+        'rar': 'fa-file-archive',
+        '7z': 'fa-file-archive',
+        'txt': 'fa-file-alt',
+        'json': 'fa-file-code',
+        'js': 'fa-file-code',
+        'html': 'fa-file-code',
+        'css': 'fa-file-code'
+      };
+      return iconMap[ext] || 'fa-file';
+    }
+    
+    // HTML转义
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    // 下载文件
+    window.downloadFile = function(filename) {
+      const url = `${API_BASE}/api/download/${filename}`;
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = decodeURIComponent(filename);
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast('开始下载...', 'success');
+    };
+    
+    // 确认删除
+    window.confirmDeleteFile = function(filename) {
+      fileToDelete = filename;
+      deleteFileName.textContent = decodeURIComponent(filename);
+      modalOverlay.classList.add('show');
+    };
+    
+    // 取消删除
+    cancelDelete.addEventListener('click', () => {
+      modalOverlay.classList.remove('show');
+      fileToDelete = null;
+    });
+    
+    // 确认删除
+    confirmDelete.addEventListener('click', async () => {
+      if (!fileToDelete) return;
+      
+      try {
+        const response = await fetch(`${API_BASE}/api/files/${fileToDelete}`, {
+          method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          showToast('文件删除成功', 'success');
+          loadFileList();
+        } else {
+          showToast(result.message || '删除失败', 'error');
+        }
+      } catch (error) {
+        showToast('删除失败: ' + error.message, 'error');
+      } finally {
+        modalOverlay.classList.remove('show');
+        fileToDelete = null;
+      }
+    });
+    
+    // 点击遮罩关闭弹窗
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) {
+        modalOverlay.classList.remove('show');
+        fileToDelete = null;
+      }
+    });
+    
+    // 刷新按钮
+    refreshBtn.addEventListener('click', () => {
+      loadFileList();
+    });
+    
+    // 拖拽上传
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+    
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      
+      if (e.dataTransfer.files.length > 0) {
+        currentFile = e.dataTransfer.files[0];
+        showFileInfo(currentFile);
+      }
+    });
+    
+    // 显示提示
+    function showToast(message, type = 'success') {
+      toast.textContent = message;
+      toast.className = 'toast ' + type;
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+    
+    // 格式化文件大小
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    // 定时刷新文件列表（每30秒）
+    setInterval(() => {
+      loadFileList();
+    }, 30000);
+  </script>
+</body>
+</html>
